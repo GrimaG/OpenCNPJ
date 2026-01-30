@@ -1,0 +1,9 @@
+# Core dependencies for OpenCNPJ ETL Python
+aiohttp>=3.9.0
+click>=8.1.0
+duckdb>=0.10.0
+rich>=13.7.0
+xxhash>=3.4.0
+
+# Optional dependencies
+# rclone must be installed separately (binary)
