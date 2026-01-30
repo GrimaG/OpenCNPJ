@@ -311,7 +311,11 @@ class ParquetIngestor:
         await HashCacheManager.upload_database_async()
     
     async def _export_single_prefix(self, prefix: str, output_dir: str) -> None:
-        """Export a single prefix to NDJSON file."""
+        """Export a single prefix to NDJSON file.
+        
+        Args:
+            prefix: Two-digit prefix (00-99), validated by caller
+        """
         try:
             output_file = os.path.join(output_dir, f"{prefix}.ndjson")
             
@@ -551,7 +555,11 @@ class ParquetIngestor:
         include_cnpj_column: bool,
         json_alias: str
     ) -> str:
-        """Build JSON query for a CNPJ prefix."""
+        """Build JSON query for a CNPJ prefix.
+        
+        Note: prefix is validated to be exactly 2 digits (00-99) by the caller,
+        so direct string interpolation is safe here.
+        """
         json_fields = self._get_json_struct_fields()
         
         if include_cnpj_column:
@@ -614,7 +622,11 @@ class ParquetIngestor:
         cnpj_dv: str,
         json_alias: str
     ) -> str:
-        """Build JSON query for a specific CNPJ."""
+        """Build JSON query for a specific CNPJ.
+        
+        Note: CNPJ parts are validated by CnpjUtils.parse_cnpj() before reaching here,
+        so direct string interpolation is safe.
+        """
         json_fields = self._get_json_struct_fields()
         select_cols = f"to_json(struct_pack(\n{json_fields}\n)) as {json_alias}"
         

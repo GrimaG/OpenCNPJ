@@ -20,7 +20,7 @@ class JsonCleanupUtils:
             data = json.loads(json_content)
             cleaned = JsonCleanupUtils._clean_element(data)
             return json.dumps(cleaned, ensure_ascii=False, separators=(',', ':'))
-        except Exception:
+        except (json.JSONDecodeError, ValueError, TypeError):
             return json_content
     
     @staticmethod

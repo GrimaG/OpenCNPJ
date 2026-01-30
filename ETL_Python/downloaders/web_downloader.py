@@ -143,6 +143,11 @@ class WebDownloader:
         max_retries: int = 3
     ) -> str:
         """Download a single file with retry logic."""
+        # Validate filepath to prevent path traversal
+        filepath = os.path.abspath(filepath)
+        if not filepath.startswith(os.path.abspath(self._download_dir)):
+            raise ValueError(f"Invalid filepath: {filepath}")
+        
         retry = 0
         
         while True:

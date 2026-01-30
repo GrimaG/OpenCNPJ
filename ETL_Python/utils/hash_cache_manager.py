@@ -141,8 +141,7 @@ class HashCacheManager:
     @classmethod
     async def add_async(cls, cnpj: str, hash_value: str) -> None:
         """Add a hash to the cache."""
-        await cls._lock.acquire()
-        try:
+        async with cls._lock:
             if cls._current_transaction is None:
                 cls._current_transaction = True
             
@@ -156,15 +155,19 @@ class HashCacheManager:
             
             if cls._pending_inserts >= cls.BATCH_SIZE:
                 await cls._commit_batch_async()
-        finally:
-            cls._lock.release()
     
     @classmethod
     async def add_batch_async(cls, items: List[ProcessedItem]) -> None:
         """Add a batch of items."""
         async with cls._lock:
+            cursor = cls._connection.cursor()
             for item in items:
-                await cls.add_async(item.cnpj, item.hash)
+                cursor.execute(
+                    "INSERT OR REPLACE INTO hashes (cnpj, hash) VALUES (?, ?)",
+                    (item.cnpj, item.hash)
+                )
+                cls._pending_inserts += 1
+            
             await cls._commit_batch_async()
     
     @classmethod
